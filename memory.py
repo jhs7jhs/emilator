@@ -3,7 +3,7 @@ from collections import namedtuple
 
 from binaryninja import SegmentFlag
 
-import errors
+from . import errors
 
 #MemoryRange = namedtuple('MemoryRange', ['start', 'length', 'flags', 'data'])
 
@@ -14,14 +14,32 @@ class MemoryRange(object):
         self.flags = flags
 
         if data is None:
-            virtual_data = bytearray('\x00')*length
+            virtual_data = bytearray(b'\x00')*length
         else:
-            virtual_data = bytearray(data) + ('\x00' * (length - len(data)))
+            virtual_data = bytearray(data) + (b'\x00' * (length - len(data)))
 
         self.data = memoryview(virtual_data)
 
-    def __cmp__(self, other):
-        if isinstance(other, (int, long)):
+    def __lt__(self, other):
+        return self.__cmp__(other, lambda x, y: x < y)
+
+    def __gt__(self, other):
+        return self.__cmp__(other, lambda x, y: x > y)
+
+    def __le__(self, other):
+        return self.__cmp__(other, lambda x, y: x <= y)
+
+    def __ge__(self, other):
+        return self.__cmp__(other, lambda x, y: x >= y)
+
+    def __eq__(self, other):
+        return self.__cmp__(other, lambda x, y: x == y)
+
+    def __ne__(self, other):
+        return self.__cmp__(other, lambda x, y: x != y)
+
+    def __cmp__(self, other, cmp):
+        if isinstance(other, int):
             return cmp(self.start, other)
 
         start_cmp = cmp(self.start, other.start)

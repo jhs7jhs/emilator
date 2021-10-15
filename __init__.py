@@ -1,2 +1,2 @@
-from emilator import *
-import errors
+from .emilator import *
+from . import errors

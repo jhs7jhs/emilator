@@ -1,8 +1,8 @@
 import struct
 
-import errors
-import llilvisitor
-import memory
+from . import errors
+from . import llilvisitor
+from . import memory
 from binaryninja import (LLIL_GET_TEMP_REG_INDEX, LLIL_REG_IS_TEMP,
                          Architecture, BinaryView, Endianness, ILRegister,
                          ImplicitRegisterExtend, LowLevelILFunction,
@@ -90,7 +90,7 @@ class Emilator(llilvisitor.LLILVisitor):
     def set_register_value(self, register, value):
         # If it's a temp register, just set the value no matter what.
         # Maybe this will be an issue eventually, maybe not.
-        if (isinstance(register, (int, long)) and 
+        if (isinstance(register, int) and 
                 LLIL_REG_IS_TEMP(register)):
             self._regs[register] = value
             return value
@@ -240,7 +240,7 @@ class Emilator(llilvisitor.LLILVisitor):
                 'Address {:x} is not valid.'.format(addr)
             )
 
-        if isinstance(data, (int, long)):
+        if isinstance(data, int):
             if length not in (1, 2, 4, 8):
                 raise KeyError('length is not 1, 2, 4, or 8.')
 
@@ -478,26 +478,26 @@ if __name__ == '__main__':
     emi.set_register_value('rbx', -1)
     emi.set_register_value('rsp', 0x1000)
 
-    print '[+] Mapping memory at 0x1000 (size: 0x1000)...'
+    print('[+] Mapping memory at 0x1000 (size: 0x1000)...')
     emi.map_memory(0x1000, flags=SegmentFlag.SegmentReadable)
 
-    print '[+] Initial Register State:'
+    print('[+] Initial Register State:')
     for r, v in emi.registers.iteritems():
-        print '\t{}:\t{:x}'.format(r, v)
+        print('\t{}:\t{:x}'.format(r, v))
 
     il.append(il.push(8, il.const(8, 0xbadf00d)))
     il.append(il.push(8, il.const(8, 0x1000)))
     il.append(il.set_reg(8, 'rax', il.pop(8)))
     il.append(il.set_reg(8, 'rbx', il.load(8, il.reg(8, 'rax'))))
 
-    print '[+] Instructions:'
+    print('[+] Instructions:')
     for i in range(len(emi.function)):
-        print '\t'+repr(il[i])
+        print('\t'+repr(il[i]))
 
-    print '[+] Executing instructions...'
+    print('[+] Executing instructions...')
     for i in emi.run():
-        print '\tInstruction completed.'
+        print('\tInstruction completed.')
 
-    print '[+] Final Register State:'
+    print('[+] Final Register State:')
     for r, v in emi.registers.iteritems():
-        print '\t{}:\t{:x}'.format(r, v)
+        print('\t{}:\t{:x}'.format(r, v))

@@ -1,5 +1,5 @@
-from bnilvisitor import BNILVisitor
-import errors
+from .bnilvisitor import BNILVisitor
+from . import errors
 
 
 class LLILVisitor(BNILVisitor):
